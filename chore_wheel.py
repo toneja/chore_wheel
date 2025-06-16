@@ -179,9 +179,9 @@ def autofit_column_widths(file_path, sheet_names):
     wb.save(file_path)
 
 
-def main():
+def main(file_path=EXCEL_FILE, prompt=True):
     os.chdir(os.path.dirname(__file__))
-    main_df, history_df = load_excel(EXCEL_FILE)
+    main_df, history_df = load_excel(file_path)
     week_count, month_count = get_week_and_month_counts(main_df)
     next_week_col = f"Week {week_count + 1}"
     last_assignments = get_last_chore_assignments(main_df)
@@ -210,16 +210,17 @@ def main():
     history_df = update_history(history_df, weekly_assignments)
     print(f"Assigned weekly chores: {next_week_col}")
 
-    with pd.ExcelWriter(EXCEL_FILE, engine="openpyxl", mode="w") as writer:
+    with pd.ExcelWriter(file_path, engine="openpyxl", mode="w") as writer:
         main_df.to_excel(writer, index=False, sheet_name=ASSIGNMENT_SHEET)
         history_df.to_excel(writer, index=False, sheet_name=HISTORY_SHEET)
 
     # Autofit columns in both sheets
-    autofit_column_widths(EXCEL_FILE, [ASSIGNMENT_SHEET, HISTORY_SHEET])
+    autofit_column_widths(file_path, [ASSIGNMENT_SHEET, HISTORY_SHEET])
 
-    print(f"All chores and history saved to {EXCEL_FILE}.")
-    input("Done. Press ENTER to exit.")
+    print(f"All chores and history saved to {file_path}.")
+    if prompt:
+        input("Done. Press ENTER to exit.")
 
 
 if __name__ == "__main__":
-    main()
+    main(EXCEL_FILE, True)
