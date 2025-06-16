@@ -399,7 +399,7 @@ class ExcelDataEditor:
         else:
             workbook_path = "ChoreAssignments.xlsx"
 
-        # Check if ChoreAssignments.xlsx exists in the current directory
+        # Check if workbook_path exists in the current directory
         if os.path.exists(workbook_path):
             try:
                 self.excel_data = pd.read_excel(workbook_path, sheet_name=None)
@@ -426,12 +426,10 @@ class ExcelDataEditor:
                 self.display_sheet()
 
             except Exception as e:
-                self.status_var.set(
-                    f"Error opening ChoreAssignments.xlsx: {str(e)}"
-                )
+                self.status_var.set(f"Error opening {workbook_path}: {str(e)}")
         else:
             self.status_var.set(
-                "Ready - ChoreAssignments.xlsx not found in current directory"
+                f"Ready - {workbook_path} not found in current directory"
             )
 
 
