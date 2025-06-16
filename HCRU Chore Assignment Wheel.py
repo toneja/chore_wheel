@@ -393,7 +393,11 @@ class ExcelDataEditor:
 
     def auto_open_chore_workbook(self):
         """Automatically open ChoreAssignments.xlsx and select 'Assignments' sheet if present"""
-        workbook_path = "ChoreAssignments.xlsx"
+        # Use the currently open workbook if there is one
+        if self.current_file:
+            workbook_path = self.current_file
+        else:
+            workbook_path = "ChoreAssignments.xlsx"
 
         # Check if ChoreAssignments.xlsx exists in the current directory
         if os.path.exists(workbook_path):
