@@ -41,6 +41,8 @@ class ExcelDataEditor:
         menubar.add_cascade(label="Edit", menu=edit_menu)
         edit_menu.add_command(label="Add Row", command=self.add_row)
         edit_menu.add_command(label="Delete Row", command=self.delete_row)
+        edit_menu.add_separator()
+        edit_menu.add_command(label="Add Column", command=self.add_column)
 
         # Tools menu
         tools_menu = tk.Menu(menubar, tearoff=0)
@@ -121,6 +123,8 @@ class ExcelDataEditor:
         self.context_menu = tk.Menu(self.root, tearoff=0)
         self.context_menu.add_command(label="Add Row", command=self.add_row)
         self.context_menu.add_command(label="Delete Row", command=self.delete_row)
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label="Add Column", command=self.add_column)
 
         self.tree.bind("<Button-3>", self.show_context_menu)  # Right-click
         self.tree.bind("<Double-1>", self.edit_cell)  # Double-click to edit
@@ -265,6 +269,25 @@ class ExcelDataEditor:
 
             self.display_sheet()
             self.status_var.set(f"Row {row_index} deleted")
+
+    def add_column(self):
+        if not self.current_sheet:
+            return
+
+        df = self.excel_data[self.current_sheet]
+        col_name = simpledialog.askstring("New Column", "Enter column name:")
+        if not col_name:
+            return
+
+        if col_name in df.columns:
+            tk.messagebox.showerror("Error", f"Column '{col_name}' already exists.")
+            return
+
+        # Add a new empty column
+        df[col_name] = ""
+
+        self.display_sheet()
+        self.status_var.set(f"New Column: {col_name} created")
 
     def edit_cell(self, event):
         if not self.current_sheet:
