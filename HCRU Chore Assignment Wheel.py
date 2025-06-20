@@ -223,14 +223,15 @@ class ExcelDataEditor:
         self.current_sheet = self.sheet_var.get()
         self.display_sheet()
 
-    def get_selected_row_index(self):
-        selection = self.tree.selection()
-        if not selection:
+    def get_selected_row_indices(self):
+        selections = self.tree.selection()
+        if not selections:
             return None
 
-        item = selection[0]
-        tags = self.tree.item(item, "tags")
-        return int(tags[0]) if tags else None
+        tags = []
+        for item in list(selections):
+            tags.append(int(self.tree.item(item, "tags")[0]))
+        return tags if tags else None
 
     def add_row(self):
         if not self.current_sheet:
@@ -255,20 +256,21 @@ class ExcelDataEditor:
             messagebox.showwarning("Warning", "No sheet selected")
             return
 
-        row_index = self.get_selected_row_index()
-        if row_index is None:
-            messagebox.showwarning("Warning", "No row selected")
+        row_indices = self.get_selected_row_indices()
+        if row_indices is None:
+            messagebox.showwarning("Warning", "No row(s) selected")
             return
 
         # Confirm deletion
-        if messagebox.askyesno("Confirm", f"Delete row {row_index}?"):
-            df = self.excel_data[self.current_sheet]
-            self.excel_data[self.current_sheet] = df.drop(
-                df.index[row_index]
-            ).reset_index(drop=True)
+        if messagebox.askyesno("Confirm", f"Delete row(s) {row_indices}?"):
+            for row_index in reversed(row_indices):
+                df = self.excel_data[self.current_sheet]
+                self.excel_data[self.current_sheet] = df.drop(
+                    df.index[row_index]
+                ).reset_index(drop=True)
 
             self.display_sheet()
-            self.status_var.set(f"Row {row_index} deleted")
+            self.status_var.set(f"Row(s) {row_indices} deleted")
 
     def add_column(self):
         if not self.current_sheet:
@@ -299,7 +301,7 @@ class ExcelDataEditor:
 
         column = self.tree.identify_column(event.x)
         col_index = int(column.replace("#", "")) - 1  # No index column offset needed
-        row_index = self.get_selected_row_index()
+        row_index = self.get_selected_row_indices()[0]
 
         if row_index is None:
             return
