@@ -211,7 +211,7 @@ class ExcelDataEditor:
 
         for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, width=120, minwidth=80)
+            self.tree.column(col, width=120, minwidth=80, stretch=False)
 
         # Insert data (without index)
         for idx, row in df.iterrows():
@@ -231,7 +231,7 @@ class ExcelDataEditor:
         tags = []
         for item in list(selections):
             tags.append(int(self.tree.item(item, "tags")[0]))
-        return tags if tags else None
+        return (tags if len(tags) > 1 else tags[0]) if tags else None
 
     def add_row(self):
         if not self.current_sheet:
@@ -301,7 +301,7 @@ class ExcelDataEditor:
 
         column = self.tree.identify_column(event.x)
         col_index = int(column.replace("#", "")) - 1  # No index column offset needed
-        row_index = self.get_selected_row_indices()[0]
+        row_index = self.get_selected_row_indices()
 
         if row_index is None:
             return
@@ -344,34 +344,36 @@ class ExcelDataEditor:
             stdout_capture = StringIO()
             stderr_capture = StringIO()
 
+            # Create output window
+            output_window = tk.Toplevel(self.root)
+            output_window.withdraw()
+            output_window.title(f"Module Output - {module_name}")
+            output_window.geometry("600x400")
+
+            # Text widget with scrollbar
+            text_frame = ttk.Frame(output_window)
+            text_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+            output_text = tk.Text(text_frame, wrap=tk.WORD)
+            output_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+            output_text.insert(tk.END, f"Running {function_call}\n")
+            output_text.insert(tk.END, "=" * 50 + "\n\n")
+
+            scrollbar = ttk.Scrollbar(text_frame, command=output_text.yview)
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            output_text.config(yscrollcommand=scrollbar.set)
+
             try:
                 sys.stdout = stdout_capture
                 sys.stderr = stderr_capture
 
                 # Import and execute the specific module
                 try:
+                    result = None
                     if module_name == "assign_chores":
                         file_path = self.current_file
                         result = chore_wheel.main(file_path, False)
-
-                    # Create output window
-                    output_window = tk.Toplevel(self.root)
-                    output_window.title(f"Module Output - {module_name}")
-                    output_window.geometry("600x400")
-
-                    # Text widget with scrollbar
-                    text_frame = ttk.Frame(output_window)
-                    text_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-                    output_text = tk.Text(text_frame, wrap=tk.WORD)
-                    output_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-                    output_text.insert(tk.END, f"Running {function_call}\n")
-                    output_text.insert(tk.END, "=" * 50 + "\n\n")
-
-                    scrollbar = ttk.Scrollbar(text_frame, command=output_text.yview)
-                    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-                    output_text.config(yscrollcommand=scrollbar.set)
 
                     # If the function returns something, display it
                     if result is not None:
@@ -413,7 +415,11 @@ class ExcelDataEditor:
             pady=10
         )
 
+        # Show the output window
+        output_window.deiconify()
+
         self.auto_open_chore_workbook()
+        self.display_sheet()
         self.status_var.set(f"Executed {module_name} module")
 
     def auto_open_chore_workbook(self):
