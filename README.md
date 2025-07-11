@@ -4,7 +4,7 @@ Randomly assign chores to randomized groups of people.
 **WINDOWS ONLY**
 
 ## Download
-https://github.com/toneja/chore_wheel/releases/download/initial/HCRU.Chore.Assignment.Wheel.zip
+https://github.com/toneja/chore_wheel/releases/download/v1.1/HCRU.Chore.Assignment.Wheel.-.v1.1.zip
 
 ## Installation
 - Unzip the above file anywhere on your PC.
