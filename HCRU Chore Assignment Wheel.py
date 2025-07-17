@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+"""docstring goes here."""
+
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, simpledialog
 import os
@@ -10,7 +14,10 @@ import chore_wheel
 
 
 class ExcelDataEditor:
+    """docstring goes here."""
+
     def __init__(self, root):
+        """docstring goes here."""
         self.root = root
         self.root.title("HCRU Chore Assignment Wheel")
         self.root.geometry("1080x720")
@@ -23,6 +30,7 @@ class ExcelDataEditor:
         self.auto_open_chore_workbook()
 
     def setup_ui(self):
+        """docstring goes here."""
         # Menu bar
         menubar = tk.Menu(self.root)
         self.root.config(menu=menubar)
@@ -138,12 +146,14 @@ class ExcelDataEditor:
         status_bar.pack(fill=tk.X, pady=(10, 0))
 
     def show_context_menu(self, event):
+        """docstring goes here."""
         try:
             self.context_menu.tk_popup(event.x_root, event.y_root)
         finally:
             self.context_menu.grab_release()
 
     def open_file(self):
+        """docstring goes here."""
         file_path = filedialog.askopenfilename(
             title="Open Excel File",
             filetypes=[("Excel files", "*.xlsx *.xls"), ("All files", "*.*")],
@@ -168,6 +178,7 @@ class ExcelDataEditor:
                 messagebox.showerror("Error", f"Failed to open file: {str(e)}")
 
     def save_file(self):
+        """docstring goes here."""
         if not self.current_file:
             self.save_as_file()
             return
@@ -184,6 +195,7 @@ class ExcelDataEditor:
             messagebox.showerror("Error", f"Failed to save file: {str(e)}")
 
     def save_as_file(self):
+        """docstring goes here."""
         file_path = filedialog.asksaveasfilename(
             title="Save Excel File",
             defaultextension=".xlsx",
@@ -195,6 +207,7 @@ class ExcelDataEditor:
             self.save_file()
 
     def display_sheet(self):
+        """docstring goes here."""
         if not self.current_sheet or self.current_sheet not in self.excel_data:
             return
 
@@ -219,21 +232,22 @@ class ExcelDataEditor:
             # Store the actual dataframe index as a tag for internal use
             self.tree.insert("", "end", values=values, tags=(str(idx),))
 
-    def on_sheet_change(self, event=None):
+    def on_sheet_change(self, _=None):
+        """docstring goes here."""
         self.current_sheet = self.sheet_var.get()
         self.display_sheet()
 
     def get_selected_row_indices(self):
-        selections = self.tree.selection()
-        if not selections:
-            return None
-
+        """docstring goes here."""
         tags = []
-        for item in list(selections):
-            tags.append(int(self.tree.item(item, "tags")[0]))
-        return tags if tags else None
+        selections = self.tree.selection()
+        if selections:
+            for item in list(selections):
+                tags.append(int(self.tree.item(item, "tags")[0]))
+        return tags
 
     def add_row(self):
+        """docstring goes here."""
         if not self.current_sheet:
             messagebox.showwarning("Warning", "No sheet selected")
             return
@@ -252,6 +266,7 @@ class ExcelDataEditor:
         self.status_var.set("Row added")
 
     def delete_row(self):
+        """docstring goes here."""
         if not self.current_sheet:
             messagebox.showwarning("Warning", "No sheet selected")
             return
@@ -273,6 +288,7 @@ class ExcelDataEditor:
             self.status_var.set(f"Row(s) {row_indices} deleted")
 
     def add_column(self):
+        """docstring goes here."""
         if not self.current_sheet:
             return
 
@@ -292,6 +308,7 @@ class ExcelDataEditor:
         self.status_var.set(f"New Column: {col_name} created")
 
     def edit_cell(self, event):
+        """docstring goes here."""
         if not self.current_sheet:
             return
 
@@ -370,14 +387,9 @@ class ExcelDataEditor:
 
                 # Import and execute the specific module
                 try:
-                    result = None
                     if module_name == "assign_chores":
                         file_path = self.current_file
-                        result = chore_wheel.main(file_path, False)
-
-                    # If the function returns something, display it
-                    if result is not None:
-                        output_text.insert(tk.END, f"Return value: {result}\n\n")
+                        chore_wheel.main(file_path, False)
 
                 except Exception as e:
                     output_text.insert(tk.END, f"ERROR during execution: {str(e)}\n")
@@ -465,6 +477,7 @@ class ExcelDataEditor:
 
 
 def main():
+    """docstring goes here."""
     # Ensure we're running from the script's directory
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 

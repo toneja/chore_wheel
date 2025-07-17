@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
+"""docstring goes here."""
 
-import pandas as pd
-import random
 import os
+import random
+import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
@@ -41,6 +42,7 @@ MONTHLY_CHORES = {
 
 
 def load_excel(file_path):
+    """docstring goes here."""
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"{file_path} does not exist.")
 
@@ -66,21 +68,22 @@ def load_excel(file_path):
                         f"'{ASSIGNMENT_SHEET}' sheet not found. Created from sheet '{name}' with all columns preserved."
                     )
                     break
-                else:
-                    raise ValueError(
-                        f"No sheet with a '{EMPLOYEE_COLUMN}' column found to create '{ASSIGNMENT_SHEET}'."
-                    )
+                raise ValueError(
+                    f"No sheet with a '{EMPLOYEE_COLUMN}' column found to create '{ASSIGNMENT_SHEET}'."
+                )
 
     return main_df, history_df
 
 
 def get_week_and_month_counts(df):
+    """docstring goes here."""
     week_cols = [col for col in df.columns if col.startswith("Week")]
     month_cols = [col for col in df.columns if col.startswith("Month")]
     return len(week_cols), len(month_cols)
 
 
 def get_last_chore_assignments(df):
+    """docstring goes here."""
     cols = [
         col for col in df.columns if col.startswith("Week") or col.startswith("Month")
     ]
@@ -91,12 +94,14 @@ def get_last_chore_assignments(df):
 
 
 def get_available_people(df):
+    """docstring goes here."""
     if OUT_COLUMN in df.columns:
-        return df[df[OUT_COLUMN] != True][EMPLOYEE_COLUMN].tolist()
+        return not df[df[OUT_COLUMN]][EMPLOYEE_COLUMN].tolist()
     return df[EMPLOYEE_COLUMN].tolist()
 
 
 def assign_chores_fairly(df, chores, excluded_people, last_assignments, history_df):
+    """docstring goes here."""
     available = [p for p in get_available_people(df) if p not in excluded_people]
     random.shuffle(available)
     assignments = {}
@@ -141,6 +146,7 @@ def assign_chores_fairly(df, chores, excluded_people, last_assignments, history_
 
 
 def write_assignments(df, assignments, col_name):
+    """docstring goes here."""
     if col_name not in df.columns:
         df[col_name] = None
     for person, chore in assignments.items():
@@ -149,6 +155,7 @@ def write_assignments(df, assignments, col_name):
 
 
 def update_history(history_df, assignments):
+    """docstring goes here."""
     for person, chore in assignments.items():
         if person not in history_df[EMPLOYEE_COLUMN].values:
             history_df = pd.concat(
@@ -162,6 +169,7 @@ def update_history(history_df, assignments):
 
 
 def autofit_column_widths(file_path, sheet_names):
+    """docstring goes here."""
     wb = load_workbook(file_path)
     for sheet_name in sheet_names:
         ws = wb[sheet_name]
@@ -169,17 +177,15 @@ def autofit_column_widths(file_path, sheet_names):
             max_length = 0
             col_letter = get_column_letter(col[0].column)
             for cell in col:
-                try:
-                    if cell.value:
-                        max_length = max(max_length, len(str(cell.value)))
-                except:
-                    pass
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
             adjusted_width = max_length + 2
             ws.column_dimensions[col_letter].width = adjusted_width
     wb.save(file_path)
 
 
 def main(file_path=EXCEL_FILE, prompt=True):
+    """docstring goes here."""
     os.chdir(os.path.dirname(__file__))
     main_df, history_df = load_excel(file_path)
     week_count, month_count = get_week_and_month_counts(main_df)
